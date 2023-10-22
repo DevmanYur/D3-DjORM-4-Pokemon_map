@@ -5,7 +5,6 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pokemon_entities.models import Pokemon, PokemonEntity
 import django
-import datetime
 
 
 MOSCOW_CENTER = [55.751244, 37.618423]
@@ -64,24 +63,65 @@ def show_all_pokemons(request):
 
 
 def show_pokemon(request, pokemon_id):
-    with open('pokemon_entities/pokemons.json', encoding='utf-8') as database:
-        pokemons = json.load(database)['pokemons']
+    select_pokemon = Pokemon.objects.get(id=pokemon_id)
+    pokemon_id_int = int(pokemon_id)
+    all_pokemon = Pokemon.objects.count()
 
-    for pokemon in pokemons:
-        if pokemon['pokemon_id'] == int(pokemon_id):
-            requested_pokemon = pokemon
-            break
-    else:
-        return HttpResponseNotFound('<h1>Такой покемон не найден</h1>')
+    pokemon = {"pokemon_id": pokemon_id,
+               "title_ru": select_pokemon.title,
+               "title_en": select_pokemon.title_en,
+               "title_jp": select_pokemon.title_jp,
+               "description": select_pokemon.description,
+               "img_url": select_pokemon.image.url,
+               }
+
+    if (pokemon_id_int== 1)&(all_pokemon == 1):
+        pokemon = pokemon
+
+    elif (pokemon_id_int == 1)&(all_pokemon > 1):
+        pokemon_after = Pokemon.objects.get(id=(pokemon_id_int + 1))
+        pokemon["next_evolution"] = {
+            "title_ru": pokemon_after.title,
+            "pokemon_id": pokemon_after.id,
+            "img_url": pokemon_after.image.url
+        }
+
+    elif (pokemon_id_int > 1)&(pokemon_id_int < all_pokemon):
+        pokemon_before = Pokemon.objects.get(id=(pokemon_id_int - 1))
+        pokemon_after = Pokemon.objects.get(id=(pokemon_id_int + 1))
+        pokemon["previous_evolution"] = {
+            "title_ru": pokemon_before.title,
+            "pokemon_id": pokemon_before.id,
+            "img_url": pokemon_before.image.url
+        }
+        pokemon["next_evolution"] = {
+            "title_ru": pokemon_after.title,
+            "pokemon_id": pokemon_after.id,
+            "img_url": pokemon_after.image.url
+        }
+
+    elif (pokemon_id_int > 1)&(pokemon_id_int == all_pokemon):
+        pokemon_before = Pokemon.objects.get(id=(pokemon_id_int-1))
+        pokemon["previous_evolution"] = {
+                        "title_ru": pokemon_before.title,
+                        "pokemon_id": pokemon_before.id,
+                        "img_url": pokemon_before.image.url
+        }
+
+    all_pokemonEntity = PokemonEntity.objects.filter(pokemon__id = pokemon_id )
+    now_local = django.utils.timezone.localtime()
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    for pokemon_entity in requested_pokemon['entities']:
-        add_pokemon(
-            folium_map, pokemon_entity['lat'],
-            pokemon_entity['lon'],
-            pokemon['img_url']
-        )
+    for pokemon_entity in all_pokemonEntity:
+        if ((pokemon_entity.appeared_at <= now_local)&(pokemon_entity.disappeared_at >= now_local)):
+            add_pokemon(
+                folium_map, pokemon_entity.lat,
+                pokemon_entity.lon,
+                pokemon_entity.pokemon.image.path
+            )
+
 
     return render(request, 'pokemon.html', context={
         'map': folium_map._repr_html_(), 'pokemon': pokemon
     })
+
