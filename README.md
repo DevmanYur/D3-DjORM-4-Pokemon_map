@@ -27,7 +27,7 @@ pip install -r requirements.txt
 Запустите разработческий сервер
 
 ```sh
-python3 manage.py runserver
+python manage.py runserver
 ```
 
 ### Переменные окружения
