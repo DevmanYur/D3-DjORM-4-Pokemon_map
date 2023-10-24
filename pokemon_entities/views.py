@@ -29,6 +29,7 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 
 def show_all_pokemons(request):
+
     all_pokemons = Pokemon.objects.all()
     all_pokemonEntity = PokemonEntity.objects.all()
     now_local = django.utils.timezone.localtime()
@@ -63,6 +64,8 @@ def show_all_pokemons(request):
 
 
 def show_pokemon(request, pokemon_id):
+
+
     select_pokemon = Pokemon.objects.get(id=pokemon_id)
     pokemon_id_int = int(pokemon_id)
     all_pokemon = Pokemon.objects.count()
