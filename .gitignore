@@ -110,3 +110,7 @@ media/
 /**/*.gitattributes
 /*index.html
 /*index
+
+local_settings.py
+*.sqlite3
+*.sqlite3-journal
