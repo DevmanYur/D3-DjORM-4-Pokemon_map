@@ -28,16 +28,15 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 def show_all_pokemons(request):
     all_pokemons = Pokemon.objects.all()
-    all_pokemonentities = PokemonEntity.objects.all()
     now_local = django.utils.timezone.localtime()
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    for pokemon_entity in all_pokemonentities:
-        if (pokemon_entity.appeared_at <= now_local) & (pokemon_entity.disappeared_at >= now_local):
-            add_pokemon(
-                folium_map, pokemon_entity.lat,
-                pokemon_entity.lon,
-                pokemon_entity.pokemon.image.path
-            )
+
+    for pokemon_entity in PokemonEntity.objects.filter(appeared_at__lte=now_local, disappeared_at__gte=now_local):
+        add_pokemon(
+            folium_map, pokemon_entity.lat,
+            pokemon_entity.lon,
+            pokemon_entity.pokemon.image.path
+        )
 
     pokemons_on_page = []
 
@@ -104,17 +103,14 @@ def show_pokemon(request, pokemon_id):
             "img_url": select_pokemon.previous_evolution.image.url
         }
 
-    all_pokemonentities = PokemonEntity.objects.filter(pokemon__id=pokemon_id)
     now_local = django.utils.timezone.localtime()
-
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    for pokemon_entity in all_pokemonentities:
-        if (pokemon_entity.appeared_at <= now_local) & (pokemon_entity.disappeared_at >= now_local):
-            add_pokemon(
-                folium_map, pokemon_entity.lat,
-                pokemon_entity.lon,
-                pokemon_entity.pokemon.image.path
-            )
+    for pokemon_entity in select_pokemon.entities.filter(appeared_at__lte=now_local, disappeared_at__gte=now_local):
+        add_pokemon(
+            folium_map, pokemon_entity.lat,
+            pokemon_entity.lon,
+            pokemon_entity.pokemon.image.path
+        )
 
     return render(request, 'pokemon.html', context={
         'map': folium_map._repr_html_(), 'pokemon': pokemon
