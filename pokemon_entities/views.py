@@ -72,35 +72,19 @@ def show_pokemon(request, pokemon_id):
                "img_url": select_pokemon.image.url,
                }
 
-    if (pokemon_id_int == 1) & (all_pokemon == 1):
-        pokemon = pokemon
-
-    elif (pokemon_id_int == 1) & (all_pokemon > 1):
-        pokemon_after = select_pokemon.pokemons.filter(id=(pokemon_id_int + 1)).first()
-        pokemon["next_evolution"] = {
-            "title_ru": pokemon_after.title,
-            "pokemon_id": pokemon_after.id,
-            "img_url": pokemon_after.image.url
-        }
-
-    elif (pokemon_id_int > 1) & (pokemon_id_int < all_pokemon):
-        pokemon_after = select_pokemon.pokemons.filter(id=(pokemon_id_int + 1)).first()
+    if select_pokemon.previous_evolution:
         pokemon["previous_evolution"] = {
             "title_ru": select_pokemon.previous_evolution.title,
             "pokemon_id": select_pokemon.previous_evolution.id,
             "img_url": select_pokemon.previous_evolution.image.url
         }
+
+    if select_pokemon.evolutions.first():
+        pokemon_after = select_pokemon.evolutions.filter(id=(pokemon_id_int + 1)).first()
         pokemon["next_evolution"] = {
             "title_ru": pokemon_after.title,
             "pokemon_id": pokemon_after.id,
             "img_url": pokemon_after.image.url
-        }
-
-    elif (pokemon_id_int > 1) & (pokemon_id_int == all_pokemon):
-        pokemon["previous_evolution"] = {
-            "title_ru": select_pokemon.previous_evolution.title,
-            "pokemon_id": select_pokemon.previous_evolution.id,
-            "img_url": select_pokemon.previous_evolution.image.url
         }
 
     now_local = django.utils.timezone.localtime()
