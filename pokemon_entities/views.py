@@ -62,7 +62,6 @@ def show_all_pokemons(request):
 def show_pokemon(request, pokemon_id):
     pokemon_id_int = int(pokemon_id)
     select_pokemon = get_object_or_404(Pokemon, id=pokemon_id)
-    all_pokemon = Pokemon.objects.count()
 
     pokemon = {"pokemon_id": pokemon_id,
                "title_ru": select_pokemon.title,
