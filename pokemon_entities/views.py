@@ -62,7 +62,6 @@ def show_all_pokemons(request):
 def show_pokemon(request, pokemon_id):
     pokemon_id_int = int(pokemon_id)
     select_pokemon = get_object_or_404(Pokemon, id=pokemon_id)
-    pokemon_after = get_object_or_404(Pokemon, id=(pokemon_id_int + 1))
     all_pokemon = Pokemon.objects.count()
 
     pokemon = {"pokemon_id": pokemon_id,
@@ -77,6 +76,7 @@ def show_pokemon(request, pokemon_id):
         pokemon = pokemon
 
     elif (pokemon_id_int == 1) & (all_pokemon > 1):
+        pokemon_after = select_pokemon.pokemons.filter(id=(pokemon_id_int + 1)).first()
         pokemon["next_evolution"] = {
             "title_ru": pokemon_after.title,
             "pokemon_id": pokemon_after.id,
@@ -84,6 +84,7 @@ def show_pokemon(request, pokemon_id):
         }
 
     elif (pokemon_id_int > 1) & (pokemon_id_int < all_pokemon):
+        pokemon_after = select_pokemon.pokemons.filter(id=(pokemon_id_int + 1)).first()
         pokemon["previous_evolution"] = {
             "title_ru": select_pokemon.previous_evolution.title,
             "pokemon_id": select_pokemon.previous_evolution.id,
