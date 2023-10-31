@@ -112,5 +112,5 @@ media/
 /*index
 
 local_settings.py
-*.sqlite3
-*.sqlite3-journal
+#*.sqlite3
+#*.sqlite3-journal

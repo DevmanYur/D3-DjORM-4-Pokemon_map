@@ -78,8 +78,8 @@ def show_pokemon(request, pokemon_id):
             "img_url": select_pokemon.previous_evolution.image.url
         }
 
-    if select_pokemon.evolutions.first():
-        pokemon_after = select_pokemon.evolutions.filter(id=(pokemon_id_int + 1)).first()
+    if select_pokemon.next_evolutions.first():
+        pokemon_after = select_pokemon.next_evolutions.filter(id=(pokemon_id_int + 1)).first()
         pokemon["next_evolution"] = {
             "title_ru": pokemon_after.title,
             "pokemon_id": pokemon_after.id,
